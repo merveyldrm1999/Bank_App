@@ -18,7 +18,7 @@ const userSchema = yup.object().shape({
 
 export default function Home() {
   const [defaultValues, setDefaultValues] = useState({
-    usurname: "",
+    username: "",
     password: "",
   });
   const {
@@ -34,9 +34,10 @@ export default function Home() {
 
   const onLogin = (data) => {
     console.log(data);
-    axios.post("http://192.168.0.133/api/login", data).then((res) => {
+    axios.post("http://127.0.0.1:80/api/login", data).then((res) => {
       if (res.status === 200) {
-        alert("başarılı");
+        console.log(res);
+        localStorage.setItem("jwt", res.data.data);
         Router.push("/bank");
       } else {
         alert("red");

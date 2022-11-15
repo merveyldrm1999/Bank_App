@@ -32,15 +32,13 @@ const style = {
   p: 4,
 };
 const Bank = () => {
-  const [bank, setBank] = useState([{ name: "merve" }]);
-  const [bankInput, setBankInput] = useState([1]);
+  const [bank, setBank] = useState([]);
   const [bankaName, setBankaName] = useState([1]);
   useEffect(() => {
     axios
-      .get("http://192.168.0.133/api/banks", {
+      .get("http://127.0.0.1:80/api/banks", {
         headers: {
-          Authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjgwOTU5NDQsImxldmVsIjoyLCJ1c2VySWQiOjYsInVzZXJuYW1lIjoibWVydmUueWlsZGlyaW0ifQ.wflZdexy_ocVmnDDMnb3R_aLN-_XWIA42PVLoHO8glw",
+          Authorization: localStorage.getItem("jwt"),
         },
       })
       .then((res) => {
@@ -48,41 +46,77 @@ const Bank = () => {
         setBank(res.data.data);
       });
   }, []);
-  const yeniEkle = () => {
-    setBankInput((bankInput) => [
-      ...bankInput,
-      ...[Math.floor(Math.random() * 99999)],
-    ]);
+  const yeniEkle = (bankamID) => {
+    const yeniBankalarim = bank.map((ban) => {
+      if (ban.id === bankamID) {
+        ban.interests = [
+          ...ban.interests,
+          {
+            id: Math.floor(Math.random() * 99999),
+            bank_id: 0,
+            interest: 0,
+            time_option: 0,
+            credit_type: 0,
+          },
+        ];
+      }
+      return ban;
+    });
+    console.log(yeniBankalarim);
+    setBank(yeniBankalarim);
+  };
+  const sil = (interestId, bankaId) => {
+    axios
+      .delete("http://127.0.0.1:80/api/interests", {
+        headers: {
+          Authorization: localStorage.getItem("jwt"),
+        },
+        data: { id: interestId, bank_id: bankaId },
+      })
+      .then((res) => {
+        if (res.status == 200) {
+          const yeniBanka = bank.map((b) => {
+            if (b.id === bankaId) {
+              b.interests = b.interests.filter((i) => i.id !== interestId);
+            }
+            return b;
+          });
+          console.log(yeniBanka);
+          setBank(yeniBanka);
+        }
+      })
+      .catch((err) => {
+        alert("hata var");
+      });
   };
 
   const bankaKaydet = () => {
     axios
       .post(
-        "http://192.168.0.133/api/banks",
+        "http://127.0.0.1:80/api/banks",
         { bank_name: bankaName },
         {
           headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjgwOTU5NDQsImxldmVsIjoyLCJ1c2VySWQiOjYsInVzZXJuYW1lIjoibWVydmUueWlsZGlyaW0ifQ.wflZdexy_ocVmnDDMnb3R_aLN-_XWIA42PVLoHO8glw",
+            Authorization: localStorage.getItem("jwt"),
           },
         }
       )
       .then((res) => {
-        setBank((bank) => [
-          ...bank,
-          { banka_name: bankaName, id: res.data.id },
-        ]);
+        if (res.status === 200) {
+          setBank((bank) => [
+            ...bank,
+            { banka_name: bankaName, id: res.data.id },
+          ]);
+        }
       });
     alert(bankaName);
   };
-  const [bankalar, setBankalar] = useState([]);
   const bankDelete = (id) => {
     alert(id);
     axios
-      .delete("http://192.168.0.133/api/banks", {
+      .delete("http://127.0.0.1:80/api/banks", {
         headers: {
-          Authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjgwOTU5NDQsImxldmVsIjoyLCJ1c2VySWQiOjYsInVzZXJuYW1lIjoibWVydmUueWlsZGlyaW0ifQ.wflZdexy_ocVmnDDMnb3R_aLN-_XWIA42PVLoHO8glw",
+          Authorization: localStorage.getItem("jwt"),
         },
         data: {
           id: parseInt(id),
@@ -121,18 +155,19 @@ const Bank = () => {
                 </Button>
               </AccordionSummary>
               <AccordionDetails>
-                <Button onClick={yeniEkle}>
-                  {" "}
+                <Button onClick={(e) => yeniEkle(bankam.id)}>
                   <ControlPointOutlinedIcon />
                 </Button>
-
-                {bankInput.map((test) => {
+                {bankam.interests?.map((test) => {
                   return (
                     <Grid container key={Math.floor(Math.random() * 99999)}>
                       <TurVadeFaiz
-                        bankInput={bankInput}
-                        setBankInput={setBankInput}
-                        keys={test}
+                        setBankalar={setBank}
+                        keys={test.id}
+                        test={test}
+                        sil={sil}
+                        bankalar={bank}
+                        bankId={bankam.id}
                       />
                     </Grid>
                   );
