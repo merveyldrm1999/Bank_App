@@ -7,46 +7,74 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-const TurVadeFaiz = ({ bankInput, setBankInput, keys }) => {
+import axios from "axios";
+const TurVadeFaiz = ({ bankalar, bankId, test, sil, setBankalar }) => {
   const [vade, setVade] = useState([]);
-  const [krediTuru, setkrediTuru] = useState("");
-  const [krediMik, setkrediMik] = useState("");
-  const [bankalar, setBankalar] = useState([]);
+  const [secilenVade, setSecilenVade] = useState(test?.time_option);
+  const [krediTuru, setkrediTuru] = useState(test?.credit_type);
+  const [krediMik, setkrediMik] = useState(test?.interest);
 
   const krediTuruSecildi = (val) => {
+    console.log(val);
     setkrediTuru(val);
-    if (val == "Konut") {
+    if (val == "1") {
       setVade([
-        { val: "5Yıl", key: "5" },
-        { val: "10Yıl", key: "10" },
+        { val: "5Yıl", key: 6 },
+        { val: "10Yıl", key: 7 },
       ]);
-    } else if (val == "Tüketici") {
+    } else if (val == "2") {
       setVade([
-        { val: "12Ay", key: "12" },
-        { val: "24Ay", key: "24" },
-        { val: "36Ay", key: "36" },
+        { val: "12Ay", key: 3 },
+        { val: "24Ay", key: 4 },
+        { val: "36Ay", key: 5 },
       ]);
     } else {
       setVade([
-        { val: "3Ay", key: "3" },
-        { val: "6Ay", key: "6" },
-        { val: "12Ay", key: "12" },
+        { val: "3Ay", key: 1 },
+        { val: "6Ay", key: 2 },
+        { val: "12Ay", key: 3 },
       ]);
     }
   };
-  const sil = () => {
-    const bak = bankInput.filter((bak) => bak !== keys);
-    console.log(bak);
-    console.log(keys);
-    setBankInput(bak);
+  const saved = () => {
+    const gon = {
+      credit_type: krediTuru,
+      time_option: secilenVade,
+      interest: parseFloat(krediMik),
+      bank_id: bankId,
+    };
+    //yeni interest ekledikten sonra test.id yi res den gelen interest.id ile değiştirmen lazım
+    axios
+      .post("http://127.0.0.1:80/api/interests", gon, {
+        headers: {
+          Authorization: localStorage.getItem("jwt"),
+        },
+      })
+      .then((res) => {
+        const ban = bankalar.map((ban) => {
+          if (ban.id === res.data.bank_id) {
+            ban.interests = [
+              ...ban.interests,
+              {
+                id: res.data.id,
+                bank_id: res.data.bank_id,
+                interest: res.data.interest,
+                time_option: res.data.time_option,
+                credit_type: res.data.credit_type,
+              },
+            ];
+          }
+          return ban;
+        });
+        setBankalar(ban);
+
+        alert("Banka Kaydedildi");
+        // setBankalar([...bankalar, gon]);
+      });
+
+    console.log(gon);
   };
 
-  const saved = () => {
-    const gon = { tur: krediTuru, vade: vade, miktar: krediMik };
-    // axios.post("url", gon).then((res) => {
-    //   alert("başarılı");
-    // });
-  };
   return (
     <>
       <Grid item xs={3}>
@@ -58,10 +86,11 @@ const TurVadeFaiz = ({ bankInput, setBankInput, keys }) => {
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           onChange={(e) => krediTuruSecildi(e.target.value)}
+          value={krediTuru}
         >
-          <MenuItem value={"Tuketici"}>Tuketici Kredisi</MenuItem>
-          <MenuItem value={"Konut"}>Konut Kredisi</MenuItem>
-          <MenuItem value={"Mevduat"}>Mevduat Kredisi</MenuItem>
+          <MenuItem value={2}>Tuketici Kredisi</MenuItem>
+          <MenuItem value={1}>Konut Kredisi</MenuItem>
+          <MenuItem value={3}>Mevduat Kredisi</MenuItem>
         </Select>
       </Grid>
       <Grid item xs={3}>
@@ -69,7 +98,12 @@ const TurVadeFaiz = ({ bankInput, setBankInput, keys }) => {
           <label>Vade</label>
         </Grid>
 
-        <Select labelId="demo-simple-select-label" id="demo-simple-select">
+        <Select
+          onChange={(e) => setSecilenVade(e.target.value)}
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={secilenVade}
+        >
           {vade.map((vadem) => {
             return <MenuItem value={vadem.key}> {vadem.val}</MenuItem>;
           })}
@@ -89,10 +123,11 @@ const TurVadeFaiz = ({ bankInput, setBankInput, keys }) => {
       </Grid>
       <Grid item xs={3} pl={5}>
         <Grid container>İşlemler</Grid>
-        <Button onclick={saved} variant="contained">
+        <Button onClick={() => saved()} variant="contained">
           Kaydet
         </Button>
-        <Button variant="contained" onClick={sil}>
+
+        <Button variant="contained" onClick={(e) => sil(test.id, bankId)}>
           Sil
         </Button>
       </Grid>

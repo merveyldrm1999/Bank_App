@@ -36,28 +36,30 @@ const Hesaplama = () => {
 
     if (val == "Konut") {
       setVade([
-        { val: "5Yıl", key: "5" },
-        { val: "10Yıl", key: "10" },
+        { val: "5Yıl", key: "6" },
+        { val: "10Yıl", key: "7" },
       ]);
     } else {
       setVade([
-        { val: "12Ay", key: "12" },
-        { val: "24Ay", key: "24" },
-        { val: "36Ay", key: "36" },
+        { val: "12Ay", key: "3" },
+        { val: "24Ay", key: "4" },
+        { val: "36Ay", key: "5" },
       ]);
     }
   };
   const bankalariGetir = () => {
     axios
-      .get("http://192.168.0.133/api/banks", {
+      .get("http://127.0.0.1:80/api/banks", {
         headers: {
-          Authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjgwOTU5NDQsImxldmVsIjoyLCJ1c2VySWQiOjYsInVzZXJuYW1lIjoibWVydmUueWlsZGlyaW0ifQ.wflZdexy_ocVmnDDMnb3R_aLN-_XWIA42PVLoHO8glw",
+          Authorization: localStorage.getItem("jwt"),
         },
       })
       .then((res) => {
         setBankalar(res.data.banks);
       });
+    // .catch((err) => {
+    //   alert(err.response.data.err);
+    // });
   };
 
   const mevduatbankalariGetir = () => {};
@@ -85,7 +87,7 @@ const Hesaplama = () => {
                     id="demo-simple-select"
                     onChange={(e) => krediTuruSecildi(e.target.value)}
                   >
-                    <MenuItem value={"Tuketici"}>TÜketici Kredisi</MenuItem>
+                    <MenuItem value={"Tuketici"}>Tüketici Kredisi</MenuItem>
                     <MenuItem value={"Konut"}>Konut Kredisi</MenuItem>
                   </Select>
                 </Grid>
@@ -163,7 +165,6 @@ const Hesaplama = () => {
                   onChange={(e) => setkrediMik(e.target.value)}
                   value={krediMik}
                   type={"number"}
-                  s
                   id="outlined-basic"
                   label="Outlined"
                 />
