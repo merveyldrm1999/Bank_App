@@ -64,7 +64,7 @@ export default function Home() {
           justifyContent="center"
         >
           <Grid item pt={2}>
-            <label>username</label>
+            <label>Username</label>
           </Grid>
           <Grid item pt={2}>
             <Controller
@@ -81,7 +81,7 @@ export default function Home() {
             {errors.username && <p>{errors.username.message}</p>}
           </Grid>
           <Grid item pt={2}>
-            <label>password</label>
+            <label>Password</label>
           </Grid>
           <Grid item pt={2}>
             <Controller

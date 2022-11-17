@@ -34,6 +34,7 @@ const style = {
 const Bank = () => {
   const [bank, setBank] = useState([]);
   const [bankaName, setBankaName] = useState([1]);
+
   useEffect(() => {
     axios
       .get("http://127.0.0.1:80/api/banks", {
@@ -53,6 +54,7 @@ const Bank = () => {
           ...ban.interests,
           {
             id: Math.floor(Math.random() * 99999),
+
             bank_id: 0,
             interest: 0,
             time_option: 0,
@@ -140,7 +142,7 @@ const Bank = () => {
         </Grid>
         {bank.map((bankam) => {
           return (
-            <Accordion key={Math.floor(Math.random() * 99999)}>
+            <Accordion key={bankam.bank_name + bankam.id + bankam.interests}>
               <AccordionSummary
                 aria-controls="panel1a-content"
                 id="panel1a-header"
@@ -160,7 +162,12 @@ const Bank = () => {
                 </Button>
                 {bankam.interests?.map((test) => {
                   return (
-                    <Grid container key={Math.floor(Math.random() * 99999)}>
+                    <Grid
+                      container
+                      key={
+                        bankam.bank_name + bankam.id + bankam.interests.length
+                      }
+                    >
                       <TurVadeFaiz
                         setBankalar={setBank}
                         keys={test.id}
@@ -185,7 +192,7 @@ const Bank = () => {
       >
         <Box style={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Lütfen Banka Adı Girin
+            Lütfen Banka Adı Giriniz
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             <TextField
@@ -193,7 +200,7 @@ const Bank = () => {
               onChange={(e) => setBankaName(e.target.value)}
             />
             <button color="success" onClick={bankaKaydet}>
-              Ekle
+              Add
             </button>
           </Typography>
         </Box>

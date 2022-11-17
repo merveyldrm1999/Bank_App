@@ -7,15 +7,24 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import axios from "axios";
+import axios from "../config/axios";
+
 const TurVadeFaiz = ({ bankalar, bankId, test, sil, setBankalar }) => {
-  const [vade, setVade] = useState([]);
+  const [vade, setVade] = useState([
+    { val: "3Ay", key: 1 },
+    { val: "6Ay", key: 2 },
+    { val: "12Ay", key: 3 },
+    { val: "24Ay", key: 4 },
+    { val: "36Ay", key: 5 },
+
+    { val: "5Yıl", key: 6 },
+    { val: "10Yıl", key: 7 },
+  ]);
   const [secilenVade, setSecilenVade] = useState(test?.time_option);
   const [krediTuru, setkrediTuru] = useState(test?.credit_type);
   const [krediMik, setkrediMik] = useState(test?.interest);
 
   const krediTuruSecildi = (val) => {
-    console.log(val);
     setkrediTuru(val);
     if (val == "1") {
       setVade([
@@ -43,34 +52,28 @@ const TurVadeFaiz = ({ bankalar, bankId, test, sil, setBankalar }) => {
       interest: parseFloat(krediMik),
       bank_id: bankId,
     };
-    //yeni interest ekledikten sonra test.id yi res den gelen interest.id ile değiştirmen lazım
-    axios
-      .post("http://127.0.0.1:80/api/interests", gon, {
-        headers: {
-          Authorization: localStorage.getItem("jwt"),
-        },
-      })
-      .then((res) => {
-        const ban = bankalar.map((ban) => {
-          if (ban.id === res.data.bank_id) {
-            ban.interests = [
-              ...ban.interests,
-              {
-                id: res.data.id,
-                bank_id: res.data.bank_id,
-                interest: res.data.interest,
-                time_option: res.data.time_option,
-                credit_type: res.data.credit_type,
-              },
-            ];
-          }
-          return ban;
-        });
-        setBankalar(ban);
 
-        alert("Banka Kaydedildi");
-        // setBankalar([...bankalar, gon]);
+    axios.post("interests", gon).then((res) => {
+      const ban = bankalar.map((ban) => {
+        if (ban.id === res.data.bank_id) {
+          ban.interests = [
+            ...ban.interests,
+            {
+              id: res.data.id,
+              bank_id: res.data.bank_id,
+              interest: res.data.interest,
+              time_option: res.data.time_option,
+              credit_type: res.data.credit_type,
+            },
+          ];
+        }
+        return ban;
       });
+      setBankalar(ban);
+
+      alert("Banka Kaydedildi");
+      // setBankalar([...bankalar, gon]);
+    });
 
     console.log(gon);
   };
@@ -124,11 +127,11 @@ const TurVadeFaiz = ({ bankalar, bankId, test, sil, setBankalar }) => {
       <Grid item xs={3} pl={5}>
         <Grid container>İşlemler</Grid>
         <Button onClick={() => saved()} variant="contained">
-          Kaydet
+          Save
         </Button>
 
         <Button variant="contained" onClick={(e) => sil(test.id, bankId)}>
-          Sil
+          Delete
         </Button>
       </Grid>
     </>
