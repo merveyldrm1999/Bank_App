@@ -1,5 +1,6 @@
 import { Remove } from "@mui/icons-material";
 import axios from "axios";
+import Router from "next/router";
 
 const instance = axios.create({
   baseURL: "http://127.0.0.1:80/api/",
@@ -29,10 +30,10 @@ instance.interceptors.response.use(
     return response;
   },
   function (error) {
-    if (error.status === 500) {
-      alert("Kullanıcı girişi yapmalısın");
-      localStorage.removeItem("jwt");
-      Router.push("/");
+    console.log(error);
+    if (error.response.status === 500) {
+      // localStorage.removeItem("jwt");
+      // Router.push("/");
     }
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error

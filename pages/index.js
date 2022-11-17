@@ -2,10 +2,10 @@ import { Button, Grid, TextField } from "@mui/material";
 import { Container } from "@mui/system";
 import * as yup from "yup";
 import { useForm, Controller } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
-import Router from "next/router";
-import axios from "axios";
+import { useRouter } from "next/router";
+import axios from "../config/axios";
 
 const userSchema = yup.object().shape({
   username: yup
@@ -32,13 +32,13 @@ export default function Home() {
     defaultValues,
   });
 
+  const router = useRouter();
+
   const onLogin = (data) => {
-    console.log(data);
-    axios.post("http://127.0.0.1:80/api/login", data).then((res) => {
+    axios.post("login", data).then((res) => {
       if (res.status === 200) {
-        console.log(res);
         localStorage.setItem("jwt", res.data.data);
-        Router.push("/bank");
+        router.push("/bank");
       } else {
         alert("red");
       }
@@ -53,7 +53,7 @@ export default function Home() {
 
   return (
     <Container maxWidth="sm">
-      <form onSubmit={handleSubmit((data) => onLogin(data))}>
+      <form onSubmit={handleSubmit(onLogin)}>
         <Grid
           mt={20}
           sx={{ border: 1 }}
