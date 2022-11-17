@@ -32,6 +32,7 @@ const Calculation = () => {
   const [krediMik, setkrediMik] = useState("");
   const [bankalar, setBankalar] = useState([]);
   const [mevduat, setMevduat] = useState([]);
+
   const vadeler = [
     { key: 3, val: 12 },
     { key: 4, val: 24 },

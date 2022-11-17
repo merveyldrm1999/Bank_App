@@ -13,7 +13,7 @@ import {
   Typography,
   withTheme,
 } from "@mui/material";
-import axios from "axios";
+import axios from "../config/axios";
 import { Container } from "@mui/system";
 import { useEffect, useState } from "react";
 import TurVadeFaiz from "../comp/turVadeFaiz";
@@ -36,16 +36,11 @@ const Bank = () => {
   const [bankaName, setBankaName] = useState([1]);
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:80/api/banks", {
-        headers: {
-          Authorization: localStorage.getItem("jwt"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        setBank(res.data.data);
-      });
+    axios.get("banks").then((res) => {
+      console.log(res);
+      setBank(res.data.data);
+    });
+    // axios.get("banks").then((res) => console.log(res));
   }, []);
   const yeniEkle = (bankamID) => {
     const yeniBankalarim = bank.map((ban) => {
@@ -69,10 +64,7 @@ const Bank = () => {
   };
   const sil = (interestId, bankaId) => {
     axios
-      .delete("http://127.0.0.1:80/api/interests", {
-        headers: {
-          Authorization: localStorage.getItem("jwt"),
-        },
+      .delete("interests", {
         data: { id: interestId, bank_id: bankaId },
       })
       .then((res) => {
@@ -93,33 +85,20 @@ const Bank = () => {
   };
 
   const bankaKaydet = () => {
-    axios
-      .post(
-        "http://127.0.0.1:80/api/banks",
-        { bank_name: bankaName },
-        {
-          headers: {
-            Authorization: localStorage.getItem("jwt"),
-          },
-        }
-      )
-      .then((res) => {
-        if (res.status === 200) {
-          setBank((bank) => [
-            ...bank,
-            { banka_name: bankaName, id: res.data.id },
-          ]);
-        }
-      });
+    axios.post("banks", { bank_name: bankaName }).then((res) => {
+      if (res.status === 200) {
+        setBank((bank) => [
+          ...bank,
+          { banka_name: bankaName, id: res.data.id },
+        ]);
+      }
+    });
     alert(bankaName);
   };
   const bankDelete = (id) => {
     alert(id);
     axios
-      .delete("http://127.0.0.1:80/api/banks", {
-        headers: {
-          Authorization: localStorage.getItem("jwt"),
-        },
+      .delete("banks", {
         data: {
           id: parseInt(id),
         },

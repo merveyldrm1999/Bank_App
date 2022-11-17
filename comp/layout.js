@@ -4,6 +4,12 @@ import React from "react";
 
 const Layout = ({ children }) => {
   const router = useRouter();
+
+  const onLogout = () => {
+    localStorage.removeItem("jwt");
+    router.push("/");
+  };
+
   return (
     <>
       {router.pathname !== "/" && (
@@ -22,6 +28,9 @@ const Layout = ({ children }) => {
               </Button>
               <Button href="/bank" sx={{ color: "#fff" }}>
                 Banka Ekle
+              </Button>
+              <Button sx={{ color: "#fff" }} onClick={onLogout}>
+                Çıkış Yap
               </Button>
             </Toolbar>
           </AppBar>
